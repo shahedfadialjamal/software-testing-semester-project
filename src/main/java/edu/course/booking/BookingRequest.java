@@ -2,10 +2,10 @@ package edu.course.booking;
 
 public class BookingRequest {
 
-    private String customerId;
-    private String eventId;
-    private int ticketQuantity;
-    private int pricePerTicketInCents;
+    private final String customerId;
+    private final String eventId;
+    private final int ticketQuantity;
+    private final int pricePerTicketInCents;
 
     public BookingRequest(String customerId, String eventId,
                           int ticketQuantity, int pricePerTicketInCents) {
