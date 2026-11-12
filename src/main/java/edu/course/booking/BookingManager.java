@@ -18,6 +18,46 @@ public class BookingManager {
     }
 
     public String book(BookingRequest request) {
-        return null;
+
+
+        if (request == null ||
+                request.getCustomerId() == null ||
+                request.getCustomerId().isBlank() ||
+                request.getEventId() == null ||
+                request.getEventId().isBlank() ||
+                request.getTicketQuantity() < 1 ||
+                request.getTicketQuantity() > 5 ||
+                request.getPricePerTicketInCents() <= 0) {
+
+            throw new IllegalArgumentException("Invalid booking request");
+        }
+
+
+        if (eventRepository.isSoldOut(request.getEventId())) {
+            throw new IllegalStateException("Event is sold out");
+        }
+
+
+        int totalAmount = request.getTicketQuantity()
+                * request.getPricePerTicketInCents();
+
+
+        String transactionId = paymentGateway.processPayment(
+                request.getCustomerId(),
+                request.getEventId(),
+                totalAmount
+        );
+
+
+        if (transactionId == null || transactionId.isBlank()) {
+            throw new IllegalStateException("Payment failed");
+        }
+
+        eventRepository.saveBooking(request);
+
+
+        notificationService.sendConfirmation(request, transactionId);
+
+        return transactionId;
     }
 }
