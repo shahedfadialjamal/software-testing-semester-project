@@ -44,7 +44,7 @@ public class BookingManager {
         );
 
         if (transactionId == null || transactionId.isBlank()) {
-            throw new IllegalStateException("Payment failed");
+            throw new PaymentFailedException("Payment failed");
         }
 
         eventRepository.saveBooking(request);
