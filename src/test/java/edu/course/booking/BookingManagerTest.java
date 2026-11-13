@@ -147,4 +147,30 @@ class BookingManagerTest {
 
         verifyNoInteractions(notificationService);
     }
+
+    @Test
+    void shouldThrowPaymentFailedExceptionWhenPaymentReturnsNull() {
+
+        BookingRequest request =
+                new BookingRequest("C1", "E1", 2, 1500);
+
+        when(eventRepository.isSoldOut("E1")).thenReturn(false);
+
+        when(paymentGateway.processPayment("C1", "E1", 3000))
+                .thenReturn(null);
+
+        BookingManager manager = new BookingManager(
+                paymentGateway,
+                notificationService,
+                eventRepository
+        );
+
+        assertThrows(
+                PaymentFailedException.class,
+                () -> manager.book(request)
+        );
+
+        verify(eventRepository, never()).saveBooking(any());
+        verifyNoInteractions(notificationService);
+    }
 }
