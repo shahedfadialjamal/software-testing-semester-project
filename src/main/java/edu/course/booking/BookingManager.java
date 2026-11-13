@@ -43,14 +43,18 @@ public class BookingManager {
                 totalAmount
         );
 
-        if (transactionId == null || transactionId.isBlank()) {
-            throw new PaymentFailedException("Payment failed");
-        }
+        validatePaymentResult(transactionId);
 
         eventRepository.saveBooking(request);
 
         notificationService.sendConfirmation(request, transactionId);
 
         return transactionId;
+    }
+
+    private void validatePaymentResult(String transactionId) {
+        if (transactionId == null || transactionId.isBlank()) {
+            throw new PaymentFailedException("Payment failed");
+        }
     }
 }
