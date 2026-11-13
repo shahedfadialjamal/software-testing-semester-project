@@ -90,4 +90,30 @@ class BookingManagerTest {
                 new BookingRequest("C1", "E1", 2, -100)
         );
     }
+
+    @Test
+    void shouldRejectBookingWhenEventIsSoldOut() {
+
+        BookingRequest request =
+                new BookingRequest("C1", "E1", 2, 1500);
+
+        when(eventRepository.isSoldOut("E1")).thenReturn(true);
+
+        BookingManager manager = new BookingManager(
+                paymentGateway,
+                notificationService,
+                eventRepository
+        );
+
+        assertThrows(
+                IllegalStateException.class,
+                () -> manager.book(request)
+        );
+
+        verify(eventRepository).isSoldOut("E1");
+
+        verifyNoInteractions(paymentGateway, notificationService);
+
+        verify(eventRepository, never()).saveBooking(any());
+    }
 }
